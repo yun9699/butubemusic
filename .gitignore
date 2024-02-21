@@ -1,2 +1,8 @@
 node_modules/
 .env
+package.json
+package-lock.json
+.gitignore
+
+댄스곡50.json
+멜론_주간TOP100.json
