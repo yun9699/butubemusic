@@ -3,9 +3,15 @@ const create = require('./functions/Create/Create');
 const read = require('./functions/Read/Read');
 const deletes = require('./functions/Delete/Delete');
 const update = require('./functions/Update/Update');
-const input = require('./input');
+
+const db = 'butube';
+
 
 async function main() {
+  const uri = process.env.DB_ATLAS_URL;   //연결할 DB 주소
+  const client = new MongoClient(uri);    //클라이언트 -> uri 주소 입력
+  await client.connect();                 //클라이언트를 통해 서버접속
+  while
 
   // const uri = process.env.DB_LOCAL_URL;
   const uri = process.env.DB_ATLAS_URL;
