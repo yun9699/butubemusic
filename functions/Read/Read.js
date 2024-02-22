@@ -100,15 +100,16 @@ async function read_top100() {
     console.table(formattedResults);
 
     // 사용자에게 곡명을 입력받습니다.
+    while(true) {
     console.log('재생을 원하시는 곡명을 입력해주세요: ');
     const songName = await uInput(); // 사용자로부터 입력을 받는다
     const song = result.find(item => item.music_name === songName);
 
 
     if (song) {
-      const line = '-'.repeat(30);
+      const line = '-'.repeat(50);
       console.log(line);
-      console.log(`(재생중) ${song.music_name} - ${song.music_singer}`);
+      console.log(`(재생중) ${song.music_rank} ${song.music_name} - ${song.music_singer}`);
       console.log(line);
 
       // 현재 곡 정보 저장
@@ -116,16 +117,34 @@ async function read_top100() {
 
       // 메뉴 출력 및 선택 처리
       function showMenu() {
-        console.log('1. 셔플 2. 뒤로가기 3. 앞으로가기 4. 댓글추가');
+        console.log('1. 셔플 2. 뒤로가기 3. 앞으로가기 4. 댓글추가 5. 종료하기');
       }
 
       async function handleMenu() {
         const input = await uInput();
         switch (input) {
-          case '1':
-            // 셔플 기능 구현
+      // 셔플 기능 구현
+        case '1':
+          const randomId = Math.floor(Math.random() * 100) + 1; // 1부터 100까지의 랜덤한 값 생성
+          const randomSong = await client.db("butube").collection("MUSIC").findOne({ _id: randomId });
+        
+          if (randomSong) {
+            console.log(line);
+            console.log(`(재생중) ${randomSong.music_rank} ${randomSong.music_name} - ${randomSong.music_singer}`);
+            console.log(line);
+        
+            // 현재 곡 정보 업데이트
+            currentSong = randomSong;
+        
+            // 메뉴 출력 및 선택 처리
+            showMenu();
+            await handleMenu();
+          } else {
+            console.log('해당 곡을 찾을 수 없습니다.');
             break;
-
+          }
+          break;
+        
           case '2':
             if (!currentSong) {
               console.log('현재 재생 중인 곡이 없습니다.');
@@ -145,7 +164,7 @@ async function read_top100() {
 
             // 이전 곡 정보 출력
             console.log(line);
-            console.log(`(재생중) ${prevSong.music_name} - ${prevSong.music_singer}`);
+            console.log(`(재생중) ${prevSong.music_rank} ${prevSong.music_name} - ${prevSong.music_singer}`);
             console.log(line);
 
             // 메뉴 출력 및 선택 처리
@@ -170,19 +189,26 @@ async function read_top100() {
 
             // 다음 곡 정보 출력
             console.log(line);
-            console.log(`(재생중) ${nextSong.music_name} - ${nextSong.music_singer}`);
+            console.log(`(재생중) ${nextSong.music_rank} ${nextSong.music_name} - ${nextSong.music_singer}`);
             console.log(line);
 
             // 메뉴 출력 및 선택 처리
             showMenu();
             await handleMenu();
             break;
+
           case '4':
             // 댓글추가 기능 구현
             break;
-          default:
-            console.log("잘못된 입력입니다.")
-            process.exit()
+
+          case '5':
+          console.log("프로그램이 종료되었습니다.")
+          process.exit()
+          break;
+
+          default: 
+          console.log("잘못된 입력입니다.")
+          
         }
       }
 
@@ -192,11 +218,14 @@ async function read_top100() {
     } else {
       console.log('해당 곡을 찾을 수 없습니다. 곡명을 정확히 입력해주세요.');
     }
+  }
 
   } catch (e) {
     console.log(e.message);
   } finally {
+    console.log("please");
     await client.close();
+    process.exit();
   }
 }
 
