@@ -1,7 +1,5 @@
-"node_modules
+node_modules/
 .env
 package-lock.json
 package.json
-.gitignore "
-댄스곡50.json
-멜론_주간TOP100.json
+.gitignore
