@@ -16,7 +16,7 @@ async function read_doc(client, dbname, colname) {
 
 };
 
-async function read_community_music_doc(client, dbname, colname, user_input) {
+async function read_music(client, dbname, colname, user_input) {
   console.log(`실행 ${colname}`);
   
   const result = await client.db(dbname).collection(colname).find({}).toArray();
@@ -62,4 +62,4 @@ login();
 
 
 
-module.exports= {read_doc, login, read_community_music_doc};
+module.exports= {read_doc, login, read_music};
