@@ -6,7 +6,7 @@ console.log(uri);
 
 const dbName = 'butube';
 const collectionName = 'MUSIC';
-const jsonFilePath = './발라드50.json';
+const jsonFilePath = './rock_50.json';
 
 async function main() {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
