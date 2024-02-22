@@ -1,4 +1,8 @@
 const { MongoClient } = require('mongodb');
+const create = require('./functions/Create/Create');
+const read = require('./functions/Read/Read');
+const deletes = require('./functions/Delete/Delete');
+const update = require('./functions/Update/Update');
 const input = require('./input');
 
 async function main() {
@@ -16,30 +20,30 @@ async function main() {
 
 
     // 새로운 컬렉션을 만드는 함수
-    await newcollection(client, main_database);
+    // await create.newcollection(client, main_database);
 
     // 입력 받는 함수를 모듈화 하였음
     // let music_data = await input.uInput();
     let music_obj = {
-      "ProductID": 1, "Name": "음악", "Price": 25000, "deep": { "music_id": 5, "music_artist": "iu" }
+      "ProductID": 1, "Name": "음악", "Price": 25000, "deep": { "music_id": 4, "music_artist": "iu" }
     };
 
     // 컬렉션 안에 문서를 넣는 함수
-    await createdoc(client, main_database, main_database_playlist, music_obj);
+    await create.createdoc(client, main_database, main_database_playlist, music_obj);
 
     // 여러건을 넣는 함수는 생략하겠음 createdocs...
 
     // 컬렉션 안에 문서를 읽고 검색을 하는 함수 limit적용을 하겠음
-    await read_doc(client, main_database, main_database_playlist);
+    await read.read_doc(client, main_database, main_database_playlist);
 
     // 컬렉션 안에 음악파일을 정렬하는 함수
     let query = {};
     // value는 모르겠음
     let value = []; 
-    await update_music_docs(clent, main_database, main_database_playlist, query, value);
+    await update.update_music_docs(client, main_database, main_database_playlist, query, value);
 
     // 음악 컬렉션의 문서를 삭제하는 함수
-    await del_music_docs(client, main_database, main_database_playlist);
+    await deletes.del_music_docs(client, main_database, main_database_playlist, query);
 
 
     process.exit();
