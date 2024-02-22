@@ -3,16 +3,22 @@
 
 
 
+// create_comment 함수가 될예정
+// 댓글추가를 만들고싶어요
+// 그럴러면 유저 아이디 필요하고 음악도 필요하고 코멘트도 필요하다네요
+// // user_id와 코멘트는 입력받을게요
+async function read_doc(client, dbname, colname, user_id, comment) {
+  console.log("실행")
+  let music_info = await client.db(dbname).collection(colname).find({"_id": 1}).toArray();
+  console.log( music_info[0]['music_name']);
+  let user_info = await client.db(dbname).collection("USER").find({"user_id":user_id}).toArray();
+  console.log(user_info);
+  console.log(comment_id);
+  console.log("재미있는 코멘트를 달아주세요.");
+  let qry02 = {music_name:music_info[0]['music_name'], comment_id: user_info.user_id, comment_username: user_info.user_name, comment_docs: comment};
 
-async function read_doc(client, dbname, colname) {
-  const result = await client.db(dbname).collection(colname).find({}).toArray();
-  // const result = await client.db(dbname).collection(colname).find({"price":{$gt:10000}}).toArray();
-  // const result = await client.db(dbname).collection(colname).find({"Name":"사용자입력"}).toArray();
-  // const result = await client.db(dbname).collection(colname).findOne({});  
-  console.log(result);
-  result.forEach(info => {
-    console.table(info.music_id)
-  });
+  await client.db("butube").collection("COMMENT").insertOne(qry02);
+  
 
 };
 
@@ -27,7 +33,7 @@ async function read_music(client, dbname, colname, user_input, cmu_option) {
         music_list.push({노래이름:info.music_name, 가수이름:info.music_singer})
       }
     });
-    
+
     console.table(music_list);
   } else if (cmu_option === '2') {
     const result = await client.db(dbname).collection(colname).find({}).toArray();
