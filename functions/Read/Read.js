@@ -15,3 +15,5 @@ async function read_doc(client, dbname, colname) {
   });
 
 };
+
+module.exports= {read_doc};
