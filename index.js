@@ -73,12 +73,13 @@ async function main() {
       // await wait(1000);
       // 커뮤니티 접속 (3번)
       if (option_number === "3") {
-        console.log("원하는 곡명이나 가수명을 입력해 주세요")
+        console.log("1. 원하는 곡명이나 가수명을 입력해 주세요 2. 다른 플레이리스트 검색 (장르입력: 댄스, 발라드, 힙합, R&B, 록메탈, 트로트)")
+        let commuinty_option = await input.uInput();
         let community_search_info = await input.uInput();
         // await 때문에 변수선언 위에 하면 안 됨
         // 곡명이나 가수를 검색하면 그 목록이 전부나오도록 해야함
         // 함수에 정규표현식을 넣고 싶은데 모르겠음
-        await read.read_music(client, main_database, col_music, community_search_info);
+        await read.read_music(client, main_database, col_music, community_search_info, commuinty_option);
         break;
       }
       
