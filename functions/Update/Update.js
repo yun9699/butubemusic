@@ -5,10 +5,10 @@ async function update_music_docs(client, dbname, colname, query, value) {
 
   //  const result = await client.db(dbname).collection(colname).updateOne(qry, vals);
 
-  let qry = { Name: /er$/ };
-  let vals = { $inc: { price: 125 } };
-  const result = await client.db(dbname).collection(colname).updateMany(qry, vals);
+  const result = await client.db(dbname).collection(colname).updateMany(query, value);
 
   console.log(result)
   console.log("Documents updated");
 };
+
+module.exports= {update_music_docs};

@@ -12,10 +12,11 @@ async function newcollection(client, dbname) {
 }
 
 async function createdoc(client, dbname, colname, doc) {
-  // 데이터베이스
-  const dbobj = await client.db(dbname);
+
   // db안 컬렉션 이름 
-  const col = dbobj.collection(colname);
+  const col = await client.db(dbname).collection(colname);
   const result = await col.insertOne(doc);
   console.log(`New document created with the following id: ${result.insertedId}`);
 };
+
+module.exports= {newcollection, createdoc};
