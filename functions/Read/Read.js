@@ -18,22 +18,25 @@ async function read_doc(client, dbname, colname) {
 
 async function read_music(client, dbname, colname, user_input, cmu_option) {
   console.log(`실행 ${colname}`);
+  let music_list = [];
 
   if (cmu_option === '1') {
     const result = await client.db(dbname).collection(colname).find({}).toArray();
     result.forEach(info => {
-      if (info.music_name.includes(user_input) || info.music_singer.includes(user_input) || info.music_theme.includes(user_input)) {
-        console.table(info);
+      if (info.music_name.includes(user_input) || info.music_singer.includes(user_input)) {
+        music_list.push({노래이름:info.music_name, 가수이름:info.music_singer})
       }
     });
+    
+    console.table(music_list);
   } else if (cmu_option === '2') {
     const result = await client.db(dbname).collection(colname).find({}).toArray();
     result.forEach(info => {
       if (info.music_theme.includes(user_input)) {
-        console.table(info);
+        music_list.push({노래이름:info.music_name, 가수이름:info.music_singer})
       }
     });
-
+    console.table(music_list);
   };
 }
 
@@ -73,7 +76,7 @@ async function login() {
     process.exit();
   }
 }
-login();
+// login();
 
 
 
