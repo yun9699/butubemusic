@@ -1,154 +1,188 @@
 const { MongoClient } = require('mongodb');
-const create = require('./functions/Create/Create');
-const read = require('./functions/Read/Read');
-const deletes = require('./functions/Delete/Delete');
-const update = require('./functions/Update/Update');
+const Create = require('./functions/Create/Create.js');
+const Read = require('./functions/Read/Read.js');
+const Delete = require('./functions/Delete/Delete.js');
+const Update = require('./functions/Update/Update.js');
+const Input = require('./input.js')
 
-const db = 'butube';
+const EventEmitter = require('events');
+const myEmitter = new EventEmitter();
 
+myEmitter.setMaxListeners(100); // 원하는 숫자로 변경
 
-async function main() {
+async function main(){
+  const db = 'butube';
   const uri = process.env.DB_ATLAS_URL;   //연결할 DB 주소
   const client = new MongoClient(uri);    //클라이언트 -> uri 주소 입력
+
+  try{
   await client.connect();                 //클라이언트를 통해 서버접속
-  while
+  console.clear();                          //콘솔창정리
+      console.log(`1. 관리자용 2. 회원용 3. 종료`);
+      let menu = await Input.uInput();   // 메뉴 입력
+      if(menu==='1') {                                        //1번 선택 (관리자용)
+        await Read.login(client);
+        while(true){                                          //true 값을 반환하는 동안 프로그램 실행
+        console.log('1.회원 정보 관리 2. 음악 DB 관리 3.종료');     //1.회원 정보 관리, 2. 음악 DB 관리 3. 종료
+        menu = await Input.uInput();                          // 메뉴 입력
+          if(menu === '1'){                                    // 1.(회원 정보 관리)
+            let colname = 'USER';
+            console.log(`1. 회원 추가 2. 회원 삭제 3. 회원 보기 4. 종료`)       // 메뉴 출력
+            menu = await Input.uInput();   // 메뉴 입력
+              if(menu === '1'){                                 //1번 = 추가
+                await Create.create_user();
+              }else if(menu ==='2'){                            //2번 = 삭제
+                console.log('회원 삭제');
+                Delete.delete_user(client);
+              }else if(menu ==='3'){                            //3번 = 보기
+                Read.read_all(client,colname);
+              }else if(menu ==='4'){                            //4번 = 종료
+                console.log('종료')
+                await client.close();
+                process.exit();
+              }else{                                            //예외처리
+                console.log('잘못된 입력입니다.')}
+                wait(1000);
+          }else if(menu =='2'){                                   //2.(음악DB관리)
+            let colname ='MUSIC'
+            console.log(`1. 노래 추가 2. 노래 정보 변경 3. 노래 삭제 4. 종료`)  //메뉴
+            menu = await Input.uInput();
+            if(menu === '1'){                                          //1번 = 추가
+              await Create.create_music(client);
+            }else if(menu ==='2'){                                     //2번 = 수정
+              await Update.update_music_docs(client, db, colname);
+            }else if(menu ==='3'){                                     //3번 = 삭제
+              await Delete.del_music_docs(client, colname);
+            }else if(menu ==='4'){                                     //4번 = 종료
+              console.log('종료')
+              await client.close();
+              process.exit();
+            }else{                                                     //예외처리
+              console.log('잘못된 입력입니다.')
+            }
+          }else if(menu === '3'){                                  // 3. 종료
+            console.log('종료')
+            await client.close();
+            process.exit();
+          }else{                                                     //예외처리
+            console.log('잘못된 입력입니다.')
+          }}
+      }else if(menu==='2'){                                   //2번 선택 (고객용)
+        console.log(`1. 회원가입 2.로그인 3.종료`);                      //메뉴
+        menu = await Input.uInput();                        
+        if(menu === '1'){                                      //회원가입
+          await Create.create_user(client);
+        }else if(menu=== '2'){                                //로그인
+          let userID = await Read.login(client);
+          while(true){
+          console.log(`접속하신 ID는 ${userID} 입니다.`)
+          console.log(`1.음악재생 2.플레이리스트 3.마이페이지 4.커뮤니티 5.종료`)  //메뉴
+          menu = await Input.uInput();
+          if(menu === '1') {                                             //1.음악재생
+            console.log(`1.플레이리스트 선택 2.top100 3.종료`)                     //메뉴2
+            menu = await Input.uInput();
+            if(menu === '1'){                                          //1.내 플레이리스트 선택 (재생 추가)
+            await Read.read_PL(client, userID);
+              console.log(`재생할 플레이리스트 제목을 입력해주세요`)
+              let plname = await Input.uInput();
+              
+              console.log(`선택한 플레이리스트는 다음과 같습니다`)
+              await Read.select_PL(client, plname);
+              await Read.music_start_PL(client, plname);
 
-  // const uri = process.env.DB_LOCAL_URL;
-  const uri = process.env.DB_ATLAS_URL;
-  // console.log(uri);
+            }else if (menu ==='2'){                                    //2.랜덤재생 (탑100)
+              await Read.read_top100(client);
+            }else if(menu ==='3'){                                      //종료
+              console.log('종료')
+              await client.close();
+              process.exit();
+            }else{                                                     //예외처리
+              console.log('잘못된 입력입니다.')
+            };
+          }else if(menu === '2'){                                      //2.플레이리스트
+            console.log('1.플레이리스트 선택 2. 플레이리스트 만들기 3. 종료');
+            menu = await Input.uInput();
+            if(menu==='1'){                                               //플리 선택
+              await Read.read_PL(client, userID)
+              wait(1000);
+              console.log(`어떤 플레이리스트를 선택하시겠습니까? (이름)`);
+              let plname = await Input.uInput();
+            console.log('1.플레이리스트 수정 2.플레이리스트 삭제 3.종료');//플리 선택
+            menu = await Input.uInput();
+              wait(1000);
+              await Read.select_PL(client, plname);
+              if(menu ==='1'){                                            //2-2-1 1.플리수정
+                await Update.update_PL(client,plname);   
+              }else if(menu === '2'){                                     //2-2-1 2.플리삭제
+                await Delete.delete_PL(client);                            
+              }else if(menu ==='3'){                                      //2-2-1 3.종료
+                console.log('종료')
+                await client.close();
+                process.exit();
+              }else{                                                      //예외처리
+                console.log('잘못된 입력입니다.')
+              };
+            }else if(menu==='2'){                                          //2-2-2 플리 만들기
+            await Create.create_PL(client,userID);                                      
+            }else if(menu ==='3'){                                          //2-2-3 종료
+              console.log('종료')
+              await client.close();
+              process.exit();
+            }else{                                                          //예외처리
+              console.log('잘못된 입력입니다.')
+            };
+          }else if(menu === '3'){                                     //3.마이페이지
+            console.log('1.내정보 수정 2. 회원탈퇴 3. 종료');
+            menu = await Input.uInput();
+            if(menu === '1'){                                         //2-3-1 정보수정(추가필요))
+            await Update.update_user(client, userID);
+            }else if(menu === '2'){                                   //2-3-2 회원탈퇴
+              await Delete.delete_user(); 
+            }else if(menu ==='3'){                                      //종료
+              console.log('종료')
+              await client.close();
+              process.exit();
+            }else{                                                     //예외처리
+              console.log('잘못된 입력입니다.')
+            };
+          }else if(menu === '4'){                                     //4.커뮤니티
+            console.log('1.음악 검색 2.top100 3.종료')
+            menu = await Input.uInput();
+            if(menu === '1'){                                           //1.음악검색(테마or가수)
+              console.log('1.가수 이름으로 검색 2.테마로 검색')
+              let select = await Input.uInput();
+              console.log('검색 내용을 입력해주세요')
+              let input = await Input.uInput();
+              await Read.read_music(client, input ,select);
+            }else if (menu === '2'){                                    //2.탑100
+              await Read.show_top100(client);
+            }else if(menu ==='3'){                                      //3.종료
+              console.log('종료')
+              await client.close();
+              process.exit();
+            }else{                                                     //예외처리
+              console.log('잘못된 입력입니다.')
+            };
+          }else if(menu ==='5'){                                      //종료
+            console.log('프로그램 종료');
+            await client.close();
+            process.exit();
+          }else{                                                     //예외처리
+            console.log('잘못된 입력입니다.')
+          }};
+      }else if(menu ==='3'){                                      //종료
+            console.log('종료')
+            await client.close();
+            process.exit();
+      }else{                                                     //예외처리
+            console.log('잘못된 입력입니다.')
+      }} ;
+      await wait(1000);
 
-  const client = new MongoClient(uri);
+}finally{
+  await wait(1000);
+}};
 
-  try {
-    await client.connect();
-    const main_database = "butube";
-    let main_database_doc = "TEST";
+main();
 
-
-    // 새로운 컬렉션을 만드는 함수
-    // await create.newcollection(client, main_database);
-
-    // 테스트 코드 작성 (의미없음)
-    let music_data;
-    let a = 1;
-    if (a === 0) {
-      console.log("t")
-      // 입력 받는 함수를 모듈화 하였음
-      music_data = await input.uInput();
-      let music_obj = {
-        "ProductID": 1, "Name": "음악", "Price": 25000, "deep": { "music_id": 4, "music_artist": "iu" }
-      };
-
-      // 컬렉션 안에 문서를 넣는 함수
-      await create.createdoc(client, main_database, main_database_doc, music_obj);
-
-      // 여러건을 넣는 함수는 생략하겠음 createdocs...
-
-      // 컬렉션 안에 문서를 읽고 검색을 하는 함수 limit적용을 하겠음
-      await read.read_doc(client, main_database, main_database_doc);
-
-      // 컬렉션 안에 음악파일을 정렬하는 함수
-      let query = {};
-      // value는 모르겠음
-      let value = [];
-      await update.update_music_docs(client, main_database, main_database_doc, query, value);
-
-      // 음악 컬렉션의 문서를 삭제하는 함수
-      await deletes.del_music_docs(client, main_database, main_database_doc, query);
-
-    }
-
-    // let option_number = await input.uInput();
-    //     console.log(option_number);
-
-    //     if (option_number === "3") {
-    //       main_database_doc = "MUSIC";
-    //       // 곡명이나 가수를 검색하면 그 목록이 전부나오도록 해야함
-    //       console.log("원하는 곡명이나 가수명을 입력해 주세요")
-    //     }
-
-
-    console.log("test")
-    await read.read_doc(client, main_database, "MUSIC", "1234", "너무 듣기 좋은 노래");
-
-    while (true) {
-      console.log("환영합니다 3번 커뮤니티 이동");
-      let option_number = await input.uInput();
-      let col_music = "MUSIC";
-
-      // await wait(1000);
-      // 커뮤니티 접속 (3번)
-      if (option_number === "3") {
-        console.log("1. 원하는 곡명이나 가수명을 입력해 주세요 2. 다른 플레이리스트 검색 (장르입력: 댄스, 발라드, 힙합, R&B, 록메탈, 트로트)");
-        console.log("원하는 번호를 입력하고 엔터를 누른다음 정보를 입력해주세요");
-        let commuinty_option = await input.uInput();
-
-        let community_search_info = await input.uInput();
-        
-        await read.read_music(client, main_database, col_music, community_search_info, commuinty_option);
-        break;
-      }
-
-    }
-
-  } finally {
-    await client.close();
-    process.exit();
-  }
-};
-
-main().catch(console.error);
 const wait = (timeToDelay) => new Promise((resolve) => setTimeout(resolve, timeToDelay));
-
-// 컬렉션을 읽어주거나 검색해주는 함수
-// async function read_doc(client, dbname, colname) {
-//   const result = await client.db(dbname).collection(colname).find({}).toArray();
-//   // const result = await client.db(dbname).collection(colname).find({"price":{$gt:10000}}).toArray();
-//   // const result = await client.db(dbname).collection(colname).find({"Name":"TV"}).toArray();
-//   // const result = await client.db(dbname).collection(colname).findOne({});
-//   console.log(result);
-//   result.forEach(info => {
-//     console.table(info.music_id)
-//   });
-
-// };
-
-// 새로운 컬렉션 생성 (필요한지 모르겠음)
-// async function newcollection(client, dbname) {
-//   // collection 생성
-//   const collection = await client.db(dbname).createCollection("test");
-//   // console.log(collection);
-
-// }
-
-// 컬렉션에서 문서를 넣는 함수 (필요함)
-// async function createdoc(client, dbname, colname, doc) {
-//   // 데이터베이스
-//   const dbobj = await client.db(dbname);
-//   // db안 컬렉션 이름
-//   const col = dbobj.collection(colname);
-//   const result = await col.insertOne(doc);
-//   console.log(`New document created with the following id: ${result.insertedId}`);
-// };
-
-// async function update_music_docs(client, dbname, colname, query, value) {
-
-//   //  const result = await client.db(dbname).collection(colname).updateOne(qry, vals);
-
-//   let qry = { Name: /er$/ };
-//   let vals = { $inc: { price: 125 } };
-//   const result = await client.db(dbname).collection(colname).updateMany(qry, vals);
-
-//   console.log(result)
-//   console.log("Documents updated");
-// };
-
-// async function del_music_docs(client, dbname, colname) {
-//   let myqry = { Name: "TV" };
-//   const result = await client.db(dbname).collection(colname).deleteOne(myqry);
-//   console.log("Document Deleted");
-
-//   //  var myqry = {"price":{$gt:10000}};
-//   //  const result = await client.db(dbname).collection(colname).deleteMany(myqry);
-//   //  console.log("Documents Deleted");
-// };
