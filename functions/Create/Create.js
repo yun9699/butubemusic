@@ -1,3 +1,5 @@
+const { MongoClient } = require('mongodb');
+const Input = require('../../input')
 
 async function newcollection(client, dbname) {
   // collection 생성
@@ -16,7 +18,7 @@ async function createdoc(client, dbname, colname, doc) {
 
 
 // 회원가입 기능
-async function create_user() {
+async function create_user(client) {
   try{
     await client.connect();
     console.log ("-------회원가입-------")
@@ -52,7 +54,7 @@ async function create_user() {
 
 
 //플레이리스트 생성
-async function create_PL() {
+async function create_PL(client) {
   try{
     await client.connect();
     console.log("-------플레이리스트 생성-------");

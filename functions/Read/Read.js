@@ -1,28 +1,35 @@
+const { MongoClient } = require('mongodb');
+const Input = require('../../input')
+
+
 async function read_PL(client, id){
-  const result = await client.db('butube').collection('PLAYLIST').find({user_id : id}).project({_id : 0, playlist_name : 1,music_info:0}).toArray();
+  const result = await client.db('butube').collection('PLAYLIST').find({user_id : id}).project({playlist_name : 1}).toArray();
   console.table(result);
 }
-
-
-
+async function read_all(client,colname){
+  const result = await client.db('butube').collection(colname).find().project({_id :0}).toArray();
+  console.table(result)
+}
 
 // create_comment 함수가 될예정
 // 댓글추가를 만들고싶어요
 // 그럴러면 유저 아이디 필요하고 음악도 필요하고 코멘트도 필요하다네요
 // // user_id와 코멘트는 입력받을게요
-async function read_doc(client, dbname, colname, user_id, comment) {
-  console.log("실행")
-  let music_info = await client.db(dbname).collection(colname).find({"_id": 1}).toArray();
-  console.log( music_info[0]['music_name']);
-  let user_info = await client.db(dbname).collection("USER").find({"user_id":user_id}).toArray();
-  console.log(user_info);
-  console.log(comment_id);
-  console.log("재미있는 코멘트를 달아주세요.");
-  let qry02 = {music_name:music_info[0]['music_name'], comment_id: user_info.user_id, comment_username: user_info.user_name, comment_docs: comment};
+// async function read_doc(client, dbname, colname, user_id, comment) {
+//   let dbname = 'butube';
+//   let colname = ''
+//   console.log("실행")
+//   let music_info = await client.db(dbname).collection(colname).find({"_id": 1}).toArray();
+//   console.log( music_info[0]['music_name']);
+//   let user_info = await client.db(dbname).collection("USER").find({"user_id":user_id}).toArray();
+//   console.log(user_info);
+//   console.log(comment_id);
+//   console.log("재미있는 코멘트를 달아주세요.");
+//   let qry02 = {music_name:music_info[0]['music_name'], comment_id: user_info.user_id, comment_username: user_info.user_name, comment_docs: comment};
 
-  await client.db("butube").collection("COMMENT").insertOne(qry02);
+//   await client.db("butube").collection("COMMENT").insertOne(qry02);
   
-};
+// };
 
 async function read_music(client, user_input, cmu_option) {
   let dbname = 'butube'
@@ -55,7 +62,7 @@ async function read_music(client, user_input, cmu_option) {
 
 
 //로그인 기능
-async function login() {
+async function login(client) {
   try {
     await client.connect();
     console.log("-------로그인-------")
@@ -73,6 +80,7 @@ async function login() {
       let userPW = await Input.uInput();
       if (password !== userPW) {
         console.log("잘못된 비밀번호입니다.");
+        process.exit();
       } else {
         console.log("로그인이 완료되었습니다.")
       }
@@ -80,17 +88,12 @@ async function login() {
     return userID;
   } catch (e) {
     console.log(e.message);
-  } finally {
-    await client.close();
-    process.exit();
   }
 }
-// login();
 
 
 
-async function show_top100(){
-    try {
+async function show_top100(client){
       await client.connect();
       const result = await client.db("butube").collection("MUSIC").find({ music_rank: { $exists: true } }).toArray();
       const formattedResults = result.map(item => {
@@ -101,15 +104,13 @@ async function show_top100(){
           '테마': item.music_theme
         };
       });
-  
       // 수정된 결과를 테이블로 출력합니다.
       console.table(formattedResults);
-}
-};
+    };
 
 // top100 기능
 
-async function read_top100() {
+async function read_top100(client) {
   try {
     await client.connect();
     const result = await client.db("butube").collection("MUSIC").find({ music_rank: { $exists: true } }).toArray();
@@ -128,7 +129,7 @@ async function read_top100() {
     // 사용자에게 곡명을 입력받습니다.
     while(true) {
     console.log('재생을 원하시는 곡명을 입력해주세요: ');
-    const songName = await uInput(); // 사용자로부터 입력을 받는다
+    const songName = await Input.uInput(); // 사용자로부터 입력을 받는다
     const song = result.find(item => item.music_name === songName);
 
 
@@ -147,7 +148,7 @@ async function read_top100() {
       }
 
       async function handleMenu() {
-        const input = await uInput();
+        const input = await Input.uInput();
         switch (input) {
       // 셔플 기능 구현
         case '1':
@@ -273,4 +274,4 @@ async function select_PL(PLName) {
 }
 
 
-module.exports = { read_doc, login, read_music, read_top100, select_PL ,read_PL,show_top100};
+module.exports = { login, read_music, read_top100, select_PL ,read_PL, show_top100, read_all};

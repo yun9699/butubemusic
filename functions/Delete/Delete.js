@@ -1,3 +1,6 @@
+const { MongoClient } = require('mongodb');
+const Input = require('../../input')
+
 async function del_music_docs(client, colname) {
 
   console.log(`삭제하고 싶은 노래의 제목을 입력해주세요`)  //메뉴
@@ -18,7 +21,7 @@ async function del_docs(client, colname, query) {
 };
 
 // 회원 삭제 기능
-async function delete_user() {
+async function delete_user(client) {
   try{
     await client.connect();
     console.log("-------회원 삭제-------")
@@ -72,10 +75,8 @@ async function delete_music(playlistName) {
   }
 }
 
-
-
 // 플레이리스트 삭제 기능
-async function delete_PL() {
+async function delete_PL(client) {
   try{
     console.log("-------플레이리스트 삭제-------");
     console.log("삭제할 플레이리스트 이름을 지정해 주세요.");
