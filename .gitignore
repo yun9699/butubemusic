@@ -13,3 +13,6 @@ create_user.js
 create_PL.js
 insert_music.js
 read_top100.js
+delete_music.js
+update_PL.js
+delete_PL.js

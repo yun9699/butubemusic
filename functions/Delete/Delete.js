@@ -37,4 +37,56 @@ async function delete_user() {
   }
 }
 
-module.exports= {del_music_docs, delete_user};
+// 플레이리스트 내 노래 삭제 기능
+
+async function delete_music(playlistName) {
+  try{
+    while(true){
+      console.log(`삭제할 음악의 이름을 입력해주세요. (종료:"0")`)
+      var musicName = await Input.uInput();
+      if (musicName === "0") {
+        console.log("음악 삭제 기능을 종료합니다.");
+        break;
+      }else{
+        var qry01 = {music_name: musicName}
+        var musicInfo = await client.db("butube").collection("MUSIC").findOne(qry01)
+        if (!musicInfo) {
+          console.log("존재하지 않는 음악입니다.");
+        }else{
+          var qry02 = {playlist_name: playlistName}
+          var val02 = {$pull:{music_info:{music_name: musicName}}}
+          
+          var result01 = await client.db("butube").collection("PLAYLIST").updateOne(qry02,val02)
+          
+          console.log(`${musicInfo.music_name}을(를) 플레이리스트에서 삭제하였습니다.`)
+        }
+      }
+    }
+  }catch(e){
+    console.log(e.message)
+  }
+}
+
+
+
+// 플레이리스트 삭제 기능
+async function delete_PL() {
+  try{
+    console.log("-------플레이리스트 삭제-------");
+    console.log("삭제할 플레이리스트 이름을 지정해 주세요.");
+    let PLName = await Input.uInput();
+    let qry01 = {playlist_name: PLName}
+
+    const PLInfo = await client.db("butube").collection("PLAYLIST").findOne(qry01)
+    if (!PLInfo) {
+      console.log( `존재하지 않는 플레이리스트입니다.`)
+    }else{
+      const result01 = await client.db("butube").collection("PLAYLIST").deleteOne(qry01)
+      console.log(`"${PLName}" 플레이리스트가 삭제되었습니다.`)
+    }
+  }catch(e){
+    console.log(e.message);
+  }
+}
+
+module.exports= {del_music_docs, delete_user, delete_music, delete_PL};
