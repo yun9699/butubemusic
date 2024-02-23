@@ -74,4 +74,25 @@ async function create_PL(client) {
 }
 
 
-module.exports= {newcollection, createdoc, create_user, create_PL};
+// admin 계정으로 데이터베이스에 음악 추가
+async function create_music() {
+  try{
+    console.log("-------데이터베이스 음악 추가-------")
+    console.log("음악의 이름을 입력해 주세요.")
+    musicName = await Input.uInput()
+    console.log("가수 이름을 입력해 주세요.")
+    musicSinger = await Input.uInput()
+    console.log("음악의 장르를 지정해 주세요.")
+    musicTheme = await Input.uInput()
+    
+    let qry01 = {music_name: musicName, music_singer: musicSinger, music_theme: musicTheme}
+    const result01 = await client.db("butube").collection("MUSIC").insertOne(qry01)
+    console.log(`"${musicName}"음악이 데이터베이스에 추가되었습니다.`)
+    
+  }catch(e){
+    console.log(e.message);
+  }
+}
+
+
+module.exports= {newcollection, createdoc, create_user, create_PL, create_music};

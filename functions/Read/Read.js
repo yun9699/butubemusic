@@ -131,7 +131,7 @@ async function read_top100(client) {
     console.log('재생을 원하시는 곡명을 입력해주세요: ');
     const songName = await Input.uInput(); // 사용자로부터 입력을 받는다
     const song = result.find(item => item.music_name === songName);
-
+    
 
     if (song) {
       const line = '-'.repeat(50);
@@ -144,7 +144,7 @@ async function read_top100(client) {
 
       // 메뉴 출력 및 선택 처리
       function showMenu() {
-        console.log('1. 셔플 2. 뒤로가기 3. 앞으로가기 4. 댓글추가 5. 종료하기');
+        console.log('1. 셔플 2. 뒤로가기 3. 앞으로가기 4. 종료하기');
       }
 
       async function handleMenu() {
@@ -179,16 +179,16 @@ async function read_top100(client) {
             }
 
 
-
+          
             const prevSong = await client.db("butube").collection("MUSIC").findOne({ _id: { $lt: currentSong._id } }, { sort: { _id: -1 } });
             if (!prevSong) {
               console.log('첫 번째 곡입니다.');
               break;
             }
-
+          
             // 현재 곡 정보 업데이트
             currentSong = prevSong;
-
+          
             // 이전 곡 정보 출력
             console.log(line);
             console.log(`(재생중) ${prevSong.music_rank} ${prevSong.music_name} - ${prevSong.music_singer}`);
@@ -198,7 +198,7 @@ async function read_top100(client) {
             showMenu();
             await handleMenu();
             break;
-
+            
           case '3':
             if (!currentSong) {
               console.log('현재 재생 중인 곡이 없습니다.');
@@ -224,11 +224,11 @@ async function read_top100(client) {
             await handleMenu();
             break;
 
-          case '4':
-            // 댓글추가 기능 구현
-            break;
+          // case '4':
+          //   // 댓글추가 기능 구현
+          //   break;
 
-          case '5':
+          case '4':
           console.log("프로그램이 종료되었습니다.")
           process.exit()
           break;
