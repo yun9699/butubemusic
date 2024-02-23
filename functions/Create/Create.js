@@ -15,7 +15,7 @@ async function createdoc(client, dbname, colname, doc) {
 
 
 
-// 회원가입 기능+
+// 회원가입 기능
 async function create_user() {
   try{
     await client.connect();
@@ -51,4 +51,25 @@ async function create_user() {
 
 
 
-module.exports= {newcollection, createdoc, create_user};
+//플레이리스트 생성
+async function create_PL() {
+  try{
+    await client.connect();
+    console.log("-------플레이리스트 생성-------");
+    console.log("생성할 플레이리스트 이름을 지정해 주세요.");
+    let PLName = await Input.uInput();
+    let qry01 = {user_id: 123, playlist_name: PLName, music_info: []}
+
+    const result01 = await client.db("butube").collection("PLAYLIST").insertOne(qry01)
+    console.log(`"${PLName}" 플레이리스트가 생성되었습니다.`)
+    await ins.insert_music(PLName);
+  }catch(e){
+    console.log(e.message);
+  }finally{
+    await client.close();
+    process.exit();
+  }
+}
+
+
+module.exports= {newcollection, createdoc, create_user, create_PL};
