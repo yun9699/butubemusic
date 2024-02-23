@@ -256,4 +256,21 @@ async function read_top100() {
 }
 
 
-module.exports = { read_doc, login, read_music, read_top100 ,read_PL,show_top100};
+// 플레이리스트 선택 후 음악 리스트 출력 기능
+async function select_PL(PLName) {
+  try{
+    let qry01 = {playlist_name: PLName}
+    const result01 = await client.db("butube").collection("PLAYLIST").findOne(qry01)
+    if (!result01) {
+      console.log("해당하는 플레이리스트가 존재하지 않습니다.")
+    }else{
+      console.log(`---------------"${PLName}"---------------`);
+      console.table(result01.music_info,['music_name','music_singer'])
+    }
+  }catch(e){
+    console.log(e.message);
+  }
+}
+
+
+module.exports = { read_doc, login, read_music, read_top100, select_PL ,read_PL,show_top100};
