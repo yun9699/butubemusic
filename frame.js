@@ -135,7 +135,7 @@ async function main(){
             console.log('1.내정보 수정 2. 회원탈퇴 3. 종료');
             menu = await Input.uInput();
             if(menu === '1'){                                         //2-3-1 정보수정(추가필요))
-            //함수추가필요
+            await Update.update_user(client, userID);
             }else if(menu === '2'){                                   //2-3-2 회원탈퇴
               await Delete.delete_user(); 
             }else if(menu ==='3'){                                      //종료
