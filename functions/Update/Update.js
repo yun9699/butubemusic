@@ -117,4 +117,52 @@ async function update_PL() {
   }
 }
 
-module.exports= {update_music_docs, insert_music, update_PL, update_PL_name_docs};
+
+// 내 정보 수정 기능
+async function update_user (client, userID) {
+  try{
+    while (true){
+      console.log("-------------------현재 내 정보-------------------")
+      let qry01 = {user_id: userID}
+      let result01 = await client.db("butube").collection("USER").findOne(qry01)
+
+      let userInfo = [];
+      userInfo[0] = {"아이디" : result01.user_id, "비밀번호" : result01.user_pw, "이름" : result01.user_name, "전화번호" : result01.user_phone} 
+      console.table(userInfo);
+
+      console.log("1.비밀번호 변경 2. 이름 변경 3. 전화번호 변경 4. 종료")
+      let userInfoMenu = await Input.uInput()
+
+      if (userInfoMenu === "1") {
+        console.log("변경하실 비밀번호를 입력해 주세요.")
+        let userPW = await Input.uInput()
+        let val02 = {$set:{user_pw: userPW}}
+        const result02 = await client.db("butube").collection("USER").updateOne(qry01,val02)
+        console.log("비밀번호를 변경하였습니다.")
+      } else if (userInfoMenu === "2") {
+        console.log("변경하실 이름을 입력해 주세요.")
+        let userName = await Input.uInput()
+        let val03 = {$set:{user_name: userName}}
+        const result03 = await client.db("butube").collection("USER").updateOne(qry01,val03)
+        console.log("이름을 변경하였습니다.")
+      } else if (userInfoMenu === "3") {
+        console.log("변경하실 전화번호를 입력해 주세요.")
+        let userPhone = await Input.uInput()
+        let val04 = {$set:{user_phone: userPhone}}
+        const result04 = await client.db("butube").collection("USER").updateOne(qry01,val04)
+        console.log("전화번호를 변경하였습니다.")
+      } else if (userInfoMenu === "4") {
+        console.log("내 정보 변경 기능을 종료합니다.")
+        process.exit();
+      } else {
+        console.log("잘못된 입력입니다.")
+      }
+    }
+  }catch(e){
+    console.log(e.message)
+  }
+}
+
+
+
+module.exports= {update_music_docs, insert_music, update_PL, update_PL_name_docs, update_user};

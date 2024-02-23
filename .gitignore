@@ -17,3 +17,6 @@ update_PL.js
 delete_PL.js
 select_PL.js
 create_music.js
+create_PL.js
+insert_music.js
+update_user.js
