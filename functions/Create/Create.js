@@ -78,6 +78,8 @@ async function create_PL() {
   }
 }
 
+
+// admin 계정으로 데이터베이스에 음악 추가
 async function create_music() {
   try{
     console.log("-------데이터베이스 음악 추가-------")
