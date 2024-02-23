@@ -10,6 +10,7 @@ async function update_PL_name_docs(client, dbname, colname, key) {
   
   update_docs(client, dbname, colname, qry, val)
 };
+
 async function update_music_docs(client, dbname, colname) {
 
   console.log(`바꿀 노래의 제목을 적어주세요`)  //메뉴
@@ -113,4 +114,4 @@ async function update_PL() {
   }
 }
 
-module.exports= {update_music_docs, insert_music, update_PL};
+module.exports= {update_music_docs, insert_music, update_PL, update_PL_name_docs};

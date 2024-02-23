@@ -1,4 +1,7 @@
-
+async function read_PL(client, id){
+  const result = await client.db('butube').collection('PLAYLIST').find({user_id : id}).project({_id : 0, playlist_name : 1,music_info:0}).toArray();
+  console.table(result);
+}
 
 
 
@@ -19,10 +22,11 @@ async function read_doc(client, dbname, colname, user_id, comment) {
 
   await client.db("butube").collection("COMMENT").insertOne(qry02);
   
-
 };
 
-async function read_music(client, dbname, colname, user_input, cmu_option) {
+async function read_music(client, user_input, cmu_option) {
+  let dbname = 'butube'
+  let colname = 'MUSIC'
   console.log(`실행 ${colname}`);
   let music_list = [];
 
@@ -50,8 +54,6 @@ async function read_music(client, dbname, colname, user_input, cmu_option) {
 
 
 
-
-
 //로그인 기능
 async function login() {
   try {
@@ -75,6 +77,7 @@ async function login() {
         console.log("로그인이 완료되었습니다.")
       }
     }
+    return userID;
   } catch (e) {
     console.log(e.message);
   } finally {
@@ -86,6 +89,23 @@ async function login() {
 
 
 
+async function show_top100(){
+    try {
+      await client.connect();
+      const result = await client.db("butube").collection("MUSIC").find({ music_rank: { $exists: true } }).toArray();
+      const formattedResults = result.map(item => {
+        return {
+          '순위': item.music_rank,
+          '곡명': item.music_name,
+          '가수': item.music_singer,
+          '테마': item.music_theme
+        };
+      });
+  
+      // 수정된 결과를 테이블로 출력합니다.
+      console.table(formattedResults);
+}
+};
 
 // top100 기능
 
@@ -236,4 +256,4 @@ async function read_top100() {
 }
 
 
-module.exports = { read_doc, login, read_music, read_top100 };
+module.exports = { read_doc, login, read_music, read_top100 ,read_PL,show_top100};
