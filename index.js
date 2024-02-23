@@ -62,7 +62,8 @@ async function main() {
     //     }
 
 
-
+    console.log("test")
+    await read.read_doc(client, main_database, "MUSIC", "1234", "너무 듣기 좋은 노래");
 
     while (true) {
       console.log("환영합니다 3번 커뮤니티 이동");
