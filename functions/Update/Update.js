@@ -1,5 +1,7 @@
 const { MongoClient } = require('mongodb');
 const Input = require('../../input')
+const Delete = require('../Delete/Delete');
+const Create = require('../Create/Create');
 
 async function update_PL_name_docs(client, dbname, colname, key) {
   console.log(`바꿀 플레이리스트의 아름을 적어주세요`)  //메뉴
@@ -56,7 +58,8 @@ async function update_docs(client, dbname, colname, query, value) {
 
 
 // 플레이리스트 내 음악 추가
-async function insert_music(playlistName) {
+async function insert_music(client, playlistName) {
+  await client.connect();
   try{
     while(true){
       console.log(`추가할 음악의 이름을 입력해주세요. (종료:"0")`)
@@ -90,6 +93,7 @@ async function insert_music(playlistName) {
         }
       }
     }
+    // return musicName;
   }catch(e){
     console.log(e.message);
   }
@@ -99,16 +103,17 @@ async function insert_music(playlistName) {
 
 
 // 플레이리스트 수정
-async function update_PL() {
+async function update_PL(client,playlist_name) {
   try{
+    await client.connect();
     console.log("-------플레이리스트 수정-------");
     console.log("1. 음악 추가 2. 음악 삭제");
 
     let PLMenu = await Input.uInput();
     if (PLMenu === "1") {
-      await ins.insert_music("플리1");
+      await insert_music(client, playlist_name);
     }else if (PLMenu === "2") {
-      await del.delete_music("플리1");
+      await Delete.delete_music(client, playlist_name);
     }else {
       console.log("잘못된 입력입니다.")
     }

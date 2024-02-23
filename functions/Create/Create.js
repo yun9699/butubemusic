@@ -1,5 +1,6 @@
 const { MongoClient } = require('mongodb');
 const Input = require('../../input')
+const Update = require('../Update/Update')
 
 async function newcollection(client, dbname) {
   // collection 생성
@@ -54,28 +55,25 @@ async function create_user(client) {
 
 
 //플레이리스트 생성
-async function create_PL(client) {
+async function create_PL(client, ID) {
+  await client.connect();
   try{
-    await client.connect();
     console.log("-------플레이리스트 생성-------");
     console.log("생성할 플레이리스트 이름을 지정해 주세요.");
     let PLName = await Input.uInput();
-    let qry01 = {user_id: 123, playlist_name: PLName, music_info: []}
+    let qry01 = {user_id: ID, playlist_name: PLName, music_info: []}
 
     const result01 = await client.db("butube").collection("PLAYLIST").insertOne(qry01)
     console.log(`"${PLName}" 플레이리스트가 생성되었습니다.`)
-    await ins.insert_music(PLName);
+    await Update.insert_music(client, PLName);
   }catch(e){
     console.log(e.message);
-  }finally{
-    await client.close();
-    process.exit();
   }
 }
 
 
 // admin 계정으로 데이터베이스에 음악 추가
-async function create_music() {
+async function create_music(client) {
   try{
     console.log("-------데이터베이스 음악 추가-------")
     console.log("음악의 이름을 입력해 주세요.")

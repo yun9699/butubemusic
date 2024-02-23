@@ -1,35 +1,44 @@
 const { MongoClient } = require('mongodb');
 const Input = require('../../input')
 
+// async function show_top100(client){
+//   await client.connect();
+//   const result = await client.db("butube").collection("MUSIC").find({ music_rank: { $exists: true } }).toArray();
+//   const formattedResults = result.map(item => {
+//     return {
+//       '순위': item.music_rank,
+//       '곡명': item.music_name,
+//       '가수': item.music_singer,
+//       '테마': item.music_theme
+//     };
+//   });
+//   // 수정된 결과를 테이블로 출력합니다.
+//   console.table(formattedResults);
+// };
 
-async function read_PL(client, id){
-  const result = await client.db('butube').collection('PLAYLIST').find({user_id : id}).project({playlist_name : 1}).toArray();
-  console.table(result);
-}
-async function read_all(client,colname){
-  const result = await client.db('butube').collection(colname).find().project({_id :0}).toArray();
+// async function read_PL(client, id){
+//   let result = await client.db("butube").collection("PLAYLIST").find({user_id : id}).project({_id : 0, playlist_name : 1}).toArray();
+//   let formattedResults = result.map(item => {
+//     return{
+//       '플리 제목' : item.playlist_name
+//     };
+//   });
+//   console.table(formattedResults);
+// }
+
+async function read_PL(client,ID){
+  console.log(typeof(ID))
+  let IntID = parseInt(ID)
+  let result = await client.db('butube').collection("PLAYLIST").find({user_id : IntID}).project({_id :0, music_info : 0}).toArray();
   console.table(result)
 }
 
-// create_comment 함수가 될예정
-// 댓글추가를 만들고싶어요
-// 그럴러면 유저 아이디 필요하고 음악도 필요하고 코멘트도 필요하다네요
-// // user_id와 코멘트는 입력받을게요
-// async function read_doc(client, dbname, colname, user_id, comment) {
-//   let dbname = 'butube';
-//   let colname = ''
-//   console.log("실행")
-//   let music_info = await client.db(dbname).collection(colname).find({"_id": 1}).toArray();
-//   console.log( music_info[0]['music_name']);
-//   let user_info = await client.db(dbname).collection("USER").find({"user_id":user_id}).toArray();
-//   console.log(user_info);
-//   console.log(comment_id);
-//   console.log("재미있는 코멘트를 달아주세요.");
-//   let qry02 = {music_name:music_info[0]['music_name'], comment_id: user_info.user_id, comment_username: user_info.user_name, comment_docs: comment};
 
-//   await client.db("butube").collection("COMMENT").insertOne(qry02);
-  
-// };
+async function read_all(client,colname){
+  let result = await client.db('butube').collection(colname).find().project({_id :0}).toArray();
+  console.table(result)
+}
+
 
 async function read_music(client, user_input, cmu_option) {
   let dbname = 'butube'
@@ -141,7 +150,6 @@ async function read_top100(client) {
 
       // 현재 곡 정보 저장
       let currentSong = song;
-
       // 메뉴 출력 및 선택 처리
       function showMenu() {
         console.log('1. 셔플 2. 뒤로가기 3. 앞으로가기 4. 종료하기');
@@ -162,6 +170,9 @@ async function read_top100(client) {
         
             // 현재 곡 정보 업데이트
             currentSong = randomSong;
+            let index = music_info.indexOf(currentSong);
+            console.log(index);
+            console.log(typeof(index))
         
             // 메뉴 출력 및 선택 처리
             showMenu();
@@ -255,10 +266,154 @@ async function read_top100(client) {
     process.exit();
   }
 }
+//PL에서 노래재생
+async function music_start_PL(client, PLName) {
+  await client.connect();
+  try {
+    let qry01 = {playlist_name: PLName}
+    const result01 = await client.db("butube").collection("PLAYLIST").findOne(qry01)
+      console.log(result01.music_info)
 
+    // const result = await client.db("butube").collection("PLAYLIST").findOne({ playlist_name : PLName})
+    // console.table(result)
+
+    // 사용자에게 곡명을 입력받습니다.
+    while(true) {
+    console.log('재생을 원하시는 곡명을 입력해주세요: ');
+    const songName = await Input.uInput(); // 사용자로부터 입력을 받는다
+    for(const music of result01.music_info){
+      if(music.music_name === songName){
+        var song = music;
+        break;
+      }
+    }
+
+
+    if (song) {   
+      let length = result01.music_info.length;          //객체의 갯수 저장
+
+      const line = '-'.repeat(50);
+      console.log(line);
+      console.log(`(재생중) ${song.music_name} - ${song.music_singer}`);
+      console.log(line);
+
+      // 현재 곡 정보 저장
+      let currentSong = song;
+      let index = result01.music_info.indexOf(currentSong);
+      // 메뉴 출력 및 선택 처리
+      function showMenu() {
+        console.log('1. 셔플 2. 뒤로가기 3. 앞으로가기 4. 종료하기');
+      }
+
+      async function handleMenu() {
+        const input = await Input.uInput();
+
+        switch (input) {
+      // 셔플 기능 구현
+        case '1':
+          const randomId = Math.floor(Math.random() * length); // 1부터 객체의 갯수까지의 랜덤한 값 생성
+          const randomSong = result01.music_info[randomId];
+
+
+          if (randomSong) {
+            console.log(line);
+            console.log(`(재생중) ${randomSong.music_name} - ${randomSong.music_singer}`);
+            console.log(line);
+        
+            // 현재 곡 정보 업데이트
+            currentSong = randomSong;
+
+            // 메뉴 출력 및 선택 처리
+            showMenu();
+            await handleMenu();
+          } else {
+            console.log('해당 곡을 찾을 수 없습니다.');
+            break;
+          }
+          break;
+        
+          case '2':
+            if (!currentSong) {
+              console.log('현재 재생 중인 곡이 없습니다.');
+              break;
+            }
+          
+            const prevSong = result01.music_info[index -1];
+            if (!prevSong) {
+              console.log('첫 번째 곡입니다.');
+              break;
+            }
+          
+            // 현재 곡 정보 업데이트
+            currentSong = prevSong;
+            index = result01.music_info.indexOf(currentSong);
+          
+            // 이전 곡 정보 출력
+            console.log(line);
+            console.log(`(재생중) ${prevSong.music_name} - ${prevSong.music_singer}`);
+            console.log(line);
+
+            // 메뉴 출력 및 선택 처리
+            showMenu();
+            await handleMenu();
+            break;
+            
+          case '3':
+            if (!currentSong) {
+              console.log('현재 재생 중인 곡이 없습니다.');
+              break;
+            }
+
+            const nextSong = result01.music_info[index +1];
+            if (!nextSong) {
+              console.log('마지막 곡입니다.');
+              break;
+            }
+
+            // 현재 곡 정보 업데이트
+            currentSong = nextSong;
+            index = result01.music_info.indexOf(currentSong);
+
+            // 다음 곡 정보 출력
+            console.log(line);
+            console.log(`(재생중) ${nextSong.music_name} - ${nextSong.music_singer}`);
+            console.log(line);
+
+            // 메뉴 출력 및 선택 처리
+            showMenu();
+            await handleMenu();
+            break;
+
+          // case '4':
+          //   // 댓글추가 기능 구현
+          //   break;
+
+          case '4':
+          console.log("프로그램이 종료되었습니다.")
+          process.exit()
+          break;
+
+          default: 
+          console.log("잘못된 입력입니다.")
+          
+        }
+      }
+
+      showMenu();
+      await handleMenu();
+
+    } else {
+      console.log('해당 곡을 찾을 수 없습니다. 곡명을 정확히 입력해주세요.');
+    }
+  }
+
+  } catch (e) {
+    console.log(e.message);
+  }
+}
 
 // 플레이리스트 선택 후 음악 리스트 출력 기능
-async function select_PL(PLName) {
+async function select_PL(client, PLName) {
   try{
     let qry01 = {playlist_name: PLName}
     const result01 = await client.db("butube").collection("PLAYLIST").findOne(qry01)
@@ -274,4 +429,4 @@ async function select_PL(PLName) {
 }
 
 
-module.exports = { login, read_music, read_top100, select_PL ,read_PL, show_top100, read_all};
+module.exports = { login, read_music, read_top100, select_PL ,read_PL, show_top100, read_all, music_start_PL};

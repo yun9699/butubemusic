@@ -48,11 +48,11 @@ async function main(){
             console.log(`1. 노래 추가 2. 노래 정보 변경 3. 노래 삭제 4. 종료`)  //메뉴
             menu = await Input.uInput();
             if(menu === '1'){                                          //1번 = 추가
-              Create.
+              await Create.create_music(client);
             }else if(menu ==='2'){                                     //2번 = 수정
               await Update.update_music_docs(client, db, colname);
             }else if(menu ==='3'){                                     //3번 = 삭제
-              Delete.del_music_docs(client, colname);
+              await Delete.del_music_docs(client, colname);
             }else if(menu ==='4'){                                     //4번 = 종료
               console.log('종료')
               await client.close();
@@ -75,6 +75,7 @@ async function main(){
         }else if(menu=== '2'){                                //로그인
           let userID = await Read.login(client);
           while(true){
+          console.log(`접속하신 ID는 ${userID} 입니다.`)
           console.log(`1.음악재생 2.플레이리스트 3.마이페이지 4.커뮤니티 5.종료`)  //메뉴
           menu = await Input.uInput();
           if(menu === '1') {                                             //1.음악재생
@@ -82,6 +83,13 @@ async function main(){
             menu = await Input.uInput();
             if(menu === '1'){                                          //1.내 플레이리스트 선택 (재생 추가)
             await Read.read_PL(client, userID);
+              console.log(`재생할 플레이리스트 제목을 입력해주세요`)
+              let plname = await Input.uInput();
+              
+              console.log(`선택한 플레이리스트는 다음과 같습니다`)
+              await Read.select_PL(client, plname);
+              await Read.music_start_PL(client, plname);
+
             }else if (menu ==='2'){                                    //2.랜덤재생 (탑100)
               await Read.read_top100(client);
             }else if(menu ==='3'){                                      //종료
@@ -95,11 +103,16 @@ async function main(){
             console.log('1.플레이리스트 선택 2. 플레이리스트 만들기 3. 종료');
             menu = await Input.uInput();
             if(menu==='1'){                                               //플리 선택
-              await Read.read_PL(client, userID);
+              await Read.read_PL(client, userID)
+              wait(1000);
+              console.log(`어떤 플레이리스트를 선택하시겠습니까? (이름)`);
+              let plname = await Input.uInput();
             console.log('1.플레이리스트 수정 2.플레이리스트 삭제 3.종료');//플리 선택
             menu = await Input.uInput();
+              wait(1000);
+              await Read.select_PL(client, plname);
               if(menu ==='1'){                                            //2-2-1 1.플리수정
-                await Update.update_PL(client);   
+                await Update.update_PL(client,plname);   
               }else if(menu === '2'){                                     //2-2-1 2.플리삭제
                 await Delete.delete_PL(client);                            
               }else if(menu ==='3'){                                      //2-2-1 3.종료
@@ -110,7 +123,7 @@ async function main(){
                 console.log('잘못된 입력입니다.')
               };
             }else if(menu==='2'){                                          //2-2-2 플리 만들기
-            await Create.create_PL();                                      
+            await Create.create_PL(client,userID);                                      
             }else if(menu ==='3'){                                          //2-2-3 종료
               console.log('종료')
               await client.close();
