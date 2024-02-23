@@ -170,9 +170,6 @@ async function read_top100(client) {
         
             // 현재 곡 정보 업데이트
             currentSong = randomSong;
-            let index = music_info.indexOf(currentSong);
-            console.log(index);
-            console.log(typeof(index))
         
             // 메뉴 출력 및 선택 처리
             showMenu();
@@ -272,7 +269,6 @@ async function music_start_PL(client, PLName) {
   try {
     let qry01 = {playlist_name: PLName}
     const result01 = await client.db("butube").collection("PLAYLIST").findOne(qry01)
-      console.log(result01.music_info)
 
     // const result = await client.db("butube").collection("PLAYLIST").findOne({ playlist_name : PLName})
     // console.table(result)
