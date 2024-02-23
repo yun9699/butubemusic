@@ -10,9 +10,25 @@ package-lock.json
 login.js
 delete_user.js
 create_user.js
+<<<<<<< HEAD
+read_top100.js
+top100test.js
+=======
+create_PL.js
+insert_music.js
+create_PL.js
+insert_music.js
 create_PL.js
 insert_music.js
 read_top100.js
+delete_music.js
+update_PL.js
+delete_PL.js
+>>>>>>> 24e127a6bdeab66e2e263a0353d8025c483cec49
+
+delete_music.js
+update_PL.js
+delete_PL.js
 delete_music.js
 update_PL.js
 delete_PL.js
